@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import Profile
+from .models import Profile, Link
+
 
 class ProfileForm(forms.ModelForm):
 
@@ -12,4 +13,18 @@ class ProfileForm(forms.ModelForm):
         )
         widgets = {
             'name': forms.TextInput
+        }
+
+class LinkForm(forms.ModelForm):
+
+    class Meta:
+        model = Link
+        fields = (
+            'profile',
+            'original_link',
+            'token'
+        )
+        widgets = {
+            'token': forms.TextInput,
+            'original_link': forms.TextInput,
         }
