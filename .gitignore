@@ -1,2 +1,4 @@
 .idea/
 venv/
+src/db.sqlite3
+src/config/bot_token.py
