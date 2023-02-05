@@ -14,14 +14,18 @@ class Profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
 
-class Message(models.Model):
+class Link(models.Model):
     profile = models.ForeignKey(
         to='ugc.Profile',
         verbose_name='Profile',
         on_delete=models.PROTECT,
     )
-    text = models.TextField(
-        verbose_name='Text',
+    original_link = models.TextField(
+        verbose_name='Original link'
+    )
+    token = models.TextField(
+        verbose_name='Original link token',
+        unique=True
     )
     created_at = models.DateTimeField(
         verbose_name='Time of receipt',
@@ -29,7 +33,7 @@ class Message(models.Model):
     )
 
     def __str__(self):
-        return f'Message {self.pk} from {self.profile}'
+        return f'{self.original_link} from {self.profile}'
 
     class Meta:
-        verbose_name = 'Message'
+        verbose_name = 'Link'
