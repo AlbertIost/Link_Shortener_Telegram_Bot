@@ -7,14 +7,16 @@ class Shortener:
     def __init__(self, user: Profile):
         self.__user = user
 
-    def cut_link(self, url: str) -> Link:
+    async def cut_link(self, url: str) -> Link:
         validator = URLValidator()
         try:
             validator(url)
-            link = Link.objects.create(
+            link, created = await Link.objects.aget_or_create(
                 profile=self.__user,
                 original_link=url,
-                token=get_new_token()
+                defaults={
+                    'token': await get_new_token()
+                }
             )
             return link
         except ValidationError as e:
