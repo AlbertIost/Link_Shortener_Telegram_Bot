@@ -5,12 +5,9 @@ class Profile(models.Model):
     external_id = models.PositiveIntegerField(
         verbose_name='User ID in telegram'
     )
-    name = models.TextField(
-        verbose_name='Username'
-    )
 
     def __str__(self):
-        return f'{self.name}#{self.external_id}'
+        return f'#{self.external_id}'
     class Meta:
         verbose_name = 'Profile'
 

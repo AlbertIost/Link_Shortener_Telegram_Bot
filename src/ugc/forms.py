@@ -9,11 +9,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = (
             'external_id',
-            'name',
         )
-        widgets = {
-            'name': forms.TextInput
-        }
 
 class LinkForm(forms.ModelForm):
 
