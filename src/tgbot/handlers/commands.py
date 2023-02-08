@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from telegram import Update
 from telegram.ext import ContextTypes
