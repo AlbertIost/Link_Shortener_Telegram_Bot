@@ -15,7 +15,7 @@ class Link(models.Model):
     profile = models.ForeignKey(
         to='ugc.Profile',
         verbose_name='Profile',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
     )
     original_link = models.TextField(
         verbose_name='Original link'
