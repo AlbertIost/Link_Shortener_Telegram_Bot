@@ -42,8 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #MY APPS
     'ugc',
     'tgbot',
+    'qrgenerator'
 ]
 
 MIDDLEWARE = [
@@ -133,3 +136,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TOKEN = env('TOKEN')
 
 HOST = env('HOST')
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR.joinpath('media')
