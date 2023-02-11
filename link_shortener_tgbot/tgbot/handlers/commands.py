@@ -12,6 +12,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = "I'm a bot, please talk to me!"
     await context.bot.send_message(chat_id=chat_id, text=text)
 
+
 async def cut(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     chat_id = update.effective_chat.id

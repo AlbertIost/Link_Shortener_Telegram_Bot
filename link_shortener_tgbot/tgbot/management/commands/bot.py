@@ -2,6 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from tgbot.handlers.commands import *
@@ -11,6 +12,8 @@ class Command(BaseCommand):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO
     )
+
+
     def handle(self, *args, **options):
         app = ApplicationBuilder().token(settings.TOKEN).build()
 

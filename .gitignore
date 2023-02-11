@@ -1,4 +1,4 @@
 .idea/
 venv/
-src/db.sqlite3
-src/config/.env
+link_shortener_tgbot/db.sqlite3
+link_shortener_tgbot/config/settings/.env

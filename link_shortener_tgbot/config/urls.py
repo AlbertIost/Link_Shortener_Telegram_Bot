@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from ugc import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
+    path('webhook', views.webhook, name='webhook'),
+    path('<str:link_token>', views.short_link, name='short_link'),
 ]
