@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     #MY APPS
     'ugc',
     'tgbot',
-    'qrgenerator'
 ]
 
 MIDDLEWARE = [

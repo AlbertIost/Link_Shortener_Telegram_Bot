@@ -7,14 +7,6 @@ from django.http import HttpResponse, HttpResponseNotFound
 from .utils import *
 # Create your views here.
 
-
-@csrf_exempt
-def webhook(request):
-    if request.content_type == 'application/json':
-        return HttpResponse('hello')
-    else:
-        return HttpResponse('no hello')
-
 def click_on_short_link(request, link_token):
     try:
         link = Link.objects.get(token=link_token)
