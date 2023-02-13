@@ -22,7 +22,7 @@ class Link(models.Model):
     )
     token = models.TextField(
         verbose_name='Original link token',
-        unique=True
+        max_length=16
     )
     created_at = models.DateTimeField(
         verbose_name='Time of receipt',
