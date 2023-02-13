@@ -20,5 +20,5 @@ from ugc import views
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('webhook', views.webhook, name='webhook'),
-    path('<str:link_token>', views.short_link, name='short_link'),
+    path('<str:link_token>', views.click_on_short_link, name='short_link'),
 ]

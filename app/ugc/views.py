@@ -4,6 +4,7 @@ from ugc.models import Link
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
+from .utils import *
 # Create your views here.
 
 
@@ -14,11 +15,13 @@ def webhook(request):
     else:
         return HttpResponse('no hello')
 
-
-def short_link(request, link_token):
+def click_on_short_link(request, link_token):
     try:
         link = Link.objects.get(token=link_token)
         response = redirect(link.original_link)
+
+        register_click_on_link(link, get_client_ip(request))
+
         return response
     except:
-        return HttpResponseNotFound('Link not 2323 323223 found')
+        return HttpResponseNotFound('Link not found')

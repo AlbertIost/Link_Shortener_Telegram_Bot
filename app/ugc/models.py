@@ -34,3 +34,16 @@ class Link(models.Model):
 
     class Meta:
         verbose_name = 'Link'
+
+class ClickOnLink(models.Model):
+    link = models.ForeignKey(
+        to='ugc.Link',
+        verbose_name='Link',
+        on_delete=models.CASCADE,
+    )
+    ip_address = models.TextField(
+        verbose_name='IP address'
+    )
+    click_at = models.DateTimeField(
+        verbose_name='Click at that datetime'
+    )

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Profile, Link
+from .models import Profile, Link, ClickOnLink
 
 
 class ProfileForm(forms.ModelForm):
@@ -23,4 +23,17 @@ class LinkForm(forms.ModelForm):
         widgets = {
             'token': forms.TextInput,
             'original_link': forms.TextInput,
+        }
+class ClickOnLinkForm(forms.ModelForm):
+
+    class Meta:
+        model = ClickOnLink
+        fields = (
+            'link',
+            'ip_address',
+            'click_at'
+        )
+        widgets = {
+            'ip_address': forms.TextInput,
+            'link': forms.TextInput,
         }
