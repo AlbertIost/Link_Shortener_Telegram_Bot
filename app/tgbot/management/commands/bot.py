@@ -16,6 +16,7 @@ class Command(BaseCommand):
         app = ApplicationBuilder().token(settings.TOKEN).build()
 
         start_handler = CommandHandler('start', start)
+        help_handler = CommandHandler('help', help)
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('cut', selection_shortening_mode)],
             states={
@@ -32,6 +33,7 @@ class Command(BaseCommand):
         )
 
         app.add_handler(start_handler)
+        app.add_handler(help_handler)
         app.add_handler(conv_handler)
 
         app.run_polling()
