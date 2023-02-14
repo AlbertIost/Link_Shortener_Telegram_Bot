@@ -8,6 +8,13 @@ class Shortener:
         self.__user = user
 
     async def cut_link(self, url: str) -> Link:
+        if url.find('http://') != 0 \
+                and url.find('https://') != 0 \
+                and url.find('ftp://') != 0 \
+                and url.find('ftps://') != 0:
+
+            url = 'https://' + url
+
         validator = URLValidator()
         try:
             validator(url)

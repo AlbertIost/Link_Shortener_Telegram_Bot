@@ -17,13 +17,18 @@ class Command(BaseCommand):
 
         start_handler = CommandHandler('start', start)
         conv_handler = ConversationHandler(
-            entry_points=[CommandHandler('cut', wait_url)],
+            entry_points=[CommandHandler('cut', selection_shortening_mode)],
             states={
+                SELECT_SHORTENING_MODE: [
+                    # MessageHandler(filters.Regex("^(Only link|Link & QR)$"), wait_url)
+                    CallbackQueryHandler(wait_url, pattern="^(Only link|Link & QR)$"),
+                    CallbackQueryHandler(cancel, pattern="^cancel$"),
+                ],
                 WAIT_URL: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, cut_link)
-                ]
+                ],
             },
-            fallbacks=[start_handler]
+            fallbacks=[CommandHandler('cancel', cancel)]
         )
 
         app.add_handler(start_handler)
