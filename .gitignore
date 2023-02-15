@@ -3,3 +3,4 @@ venv/
 app/db.sqlite3
 app/config/settings/.env
 app/db
+app/bot_logs
