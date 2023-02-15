@@ -7,6 +7,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Conve
 from tgbot.handlers.commands import *
 class Command(BaseCommand):
     help = 'Implemented to Django application telegram bot setup command'
+
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO
@@ -21,7 +22,6 @@ class Command(BaseCommand):
             entry_points=[CommandHandler('cut', selection_shortening_mode)],
             states={
                 SELECT_SHORTENING_MODE: [
-                    # MessageHandler(filters.Regex("^(Only link|Link & QR)$"), wait_url)
                     CallbackQueryHandler(wait_url, pattern="^(Only link|Link & QR)$"),
                     CallbackQueryHandler(cancel, pattern="^cancel$"),
                 ],
@@ -35,5 +35,6 @@ class Command(BaseCommand):
         app.add_handler(start_handler)
         app.add_handler(help_handler)
         app.add_handler(conv_handler)
+        app.add_error_handler(error)
 
         app.run_polling()
