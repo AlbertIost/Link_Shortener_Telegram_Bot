@@ -2,9 +2,11 @@ import logging
 import sys
 import traceback
 
+from asgiref.sync import sync_to_async, async_to_sync
 from django.conf import settings
 from django.core.exceptions import ValidationError
-
+from django.db import close_old_connections
+from django.db.utils import OperationalError
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, ConversationHandler
@@ -23,7 +25,7 @@ logging.basicConfig(
 )
 
 
-async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     devs = settings.DEVS_ID.split(',')
 
     if update.effective_message:
@@ -71,20 +73,25 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.delete_message()
     return ConversationHandler.END
 
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+@sync_to_async
+def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    user, created = await Profile.objects.aget_or_create(external_id=chat_id)
-    # notificate developers about new user
+    try:
+        user, created = Profile.objects.get_or_create(external_id=chat_id)
+    except OperationalError:
+        close_old_connections()
+        user, created = Profile.objects.get_or_create(external_id=chat_id)
+
+    # notification developers about new user
     if created:
         user_href = mention_html(
             chat_id,
             f'{update.effective_user.first_name} {update.effective_user.last_name}'
         )
-        await devs_notification(update, context, f'Новый пользователь: {user_href}')
+        async_to_sync(devs_notification)(update, context, f'Новый пользователь: {user_href}')
 
     text = "I'm a bot that can shorten the link. Type /help for get commands list."
-    await context.bot.send_message(chat_id=chat_id, text=text)
+    async_to_sync(context.bot.send_message)(chat_id=chat_id, text=text)
 
 
 async def selection_shortening_mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -118,28 +125,42 @@ async def wait_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return WAIT_URL
 
 
-async def cut_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
+@sync_to_async
+def cut_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     try:
-        user, created = await Profile.objects.aget_or_create(external_id=chat_id)
-        link = await Shortener(user).cut_link(update.message.text)
+        try:
+            user, created = Profile.objects.get_or_create(external_id=chat_id)
+        except OperationalError:
+            close_old_connections()
+            user, created = Profile.objects.get_or_create(external_id=chat_id)
+
+        try:
+            link = Shortener(user).cut_link(update.message.text)
+        except OperationalError:
+            close_old_connections()
+            link = Shortener(user).cut_link(update.message.text)
+
         short_url = get_short_url(link)
+
         if context.chat_data.get('selected_mode') == 'Only link':
-            await context.bot.send_message(chat_id=chat_id, text=short_url)
+            async_to_sync(context.bot.send_message)(chat_id=chat_id, text=short_url)
+
         elif context.chat_data['selected_mode'] == 'Link & QR':
-            await context.bot.send_photo(chat_id=chat_id, photo=get_qrcode(short_url), caption=short_url)
+            async_to_sync(context.bot.send_photo)(chat_id=chat_id, photo=get_qrcode(short_url), caption=short_url)
 
         user_href = mention_html(
             chat_id,
             f'{update.effective_user.first_name} {update.effective_user.last_name}'
         )
-        await devs_notification(update, context, f'Пользователь: {user_href}.\n'
+
+        async_to_sync(devs_notification)(update, context, f'Пользователь: {user_href}.\n'
                                                  f'Сократил ссылку: {link.original_link}\n'
                                                  f'Получил результат: {short_url}')
         context.chat_data.clear()
         return ConversationHandler.END
 
     except (ValidationError, IndexError):
-        await context.bot.send_message(chat_id=chat_id,
+        async_to_sync(context.bot.send_message)(chat_id=chat_id,
                                        text='Your URL is incorrect. Please, send the correct URL address.')
         return WAIT_URL
