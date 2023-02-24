@@ -7,7 +7,7 @@ class Shortener:
     def __init__(self, user: Profile):
         self.__user = user
 
-    async def cut_link(self, url: str) -> Link:
+    def cut_link(self, url: str) -> Link:
         if url.find('http://') != 0 \
                 and url.find('https://') != 0 \
                 and url.find('ftp://') != 0 \
@@ -18,11 +18,11 @@ class Shortener:
         validator = URLValidator()
         try:
             validator(url)
-            link, created = await Link.objects.aget_or_create(
+            link, created = Link.objects.get_or_create(
                 profile=self.__user,
                 original_link=url,
                 defaults={
-                    'token': await get_new_token()
+                    'token': get_new_token()
                 }
             )
             return link
