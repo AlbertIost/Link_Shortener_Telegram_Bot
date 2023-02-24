@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, ConversationHandler, CallbackQueryHandler, \
+from telegram.ext import ApplicationBuilder, CommandHandler, ConversationHandler, CallbackQueryHandler, \
     MessageHandler, filters
 from tgbot.handlers.commands import *
 class Command(BaseCommand):
@@ -35,6 +35,6 @@ class Command(BaseCommand):
         app.add_handler(start_handler)
         app.add_handler(help_handler)
         app.add_handler(conv_handler)
-        app.add_error_handler(error)
+        app.add_error_handler(error_handler)
 
         app.run_polling()
