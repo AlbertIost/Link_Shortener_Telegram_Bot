@@ -3,10 +3,10 @@ from .models import Link, ClickOnLink
 from django.utils.crypto import get_random_string
 
 
-async def get_new_token() -> str:
+def get_new_token() -> str:
     while True:
         token = get_random_string(length=10)
-        if not await Link.objects.filter(token=token).aexists():
+        if not Link.objects.filter(token=token).exists():
             return token
 
 
