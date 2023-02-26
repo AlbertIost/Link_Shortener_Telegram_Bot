@@ -14,7 +14,7 @@ from telegram.ext import ContextTypes, ConversationHandler
 from telegram.helpers import mention_html
 
 from ugc.shortener import Shortener
-from ugc.models import Profile, Link, ClickOnLink
+from ugc.models import Profile, Link, ClickOnLink, ProfileLevel
 from tgbot.utils import get_qrcode, get_short_url
 
 WAIT_URL, SELECT_SHORTENING_MODE = range(2)
@@ -78,10 +78,16 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     try:
-        user, created = Profile.objects.get_or_create(external_id=chat_id)
+        user, created = Profile.objects.get_or_create(external_id=chat_id,
+                                                      defaults={
+                                                          'profile_level': ProfileLevel.get_default_level()
+                                                      })
     except OperationalError:
         close_old_connections()
-        user, created = Profile.objects.get_or_create(external_id=chat_id)
+        user, created = Profile.objects.get_or_create(external_id=chat_id,
+                                                      defaults={
+                                                          'profile_level': ProfileLevel.get_default_level()
+                                                      })
 
     # notification developers about new user
     if created:
@@ -131,10 +137,10 @@ def cut_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     try:
         try:
-            user, created = Profile.objects.get_or_create(external_id=chat_id)
+            user = Profile.objects.get(external_id=chat_id)
         except OperationalError:
             close_old_connections()
-            user, created = Profile.objects.get_or_create(external_id=chat_id)
+            user = Profile.objects.get(external_id=chat_id)
 
         try:
             link = Shortener(user).cut_link(update.message.text)

@@ -1,6 +1,19 @@
 from django import forms
 
-from .models import Profile, Link, ClickOnLink
+from .models import Profile, Link, ClickOnLink, ProfileLevel
+
+
+class ProfileLevelForm(forms.ModelForm):
+
+    class Meta:
+        model = ProfileLevel
+        fields = (
+            'name',
+            'max_num_of_links',
+        )
+        widgets = {
+            'name': forms.TextInput,
+        }
 
 
 class ProfileForm(forms.ModelForm):
@@ -9,6 +22,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = (
             'external_id',
+            'profile_level',
         )
 
 class LinkForm(forms.ModelForm):

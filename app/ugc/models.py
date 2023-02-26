@@ -1,9 +1,32 @@
 from django.db import models
 
 # Create your models here.
+
+class ProfileLevel(models.Model):
+    name = models.TextField(
+        verbose_name='Name of profile level'
+    )
+    max_num_of_links = models.PositiveIntegerField(
+        verbose_name='Maximum number of links'
+    )
+
+    @staticmethod
+    def get_default_level():
+        return ProfileLevel.objects.get(name='Default')
+    def __str__(self):
+        return f'Profile level: {self.name}'
+    class Meta:
+        verbose_name = 'Profile level'
+
 class Profile(models.Model):
     external_id = models.PositiveIntegerField(
         verbose_name='User ID in telegram'
+    )
+    profile_level = models.ForeignKey(
+        to='ugc.ProfileLevel',
+        verbose_name='Profile level',
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     def __str__(self):
