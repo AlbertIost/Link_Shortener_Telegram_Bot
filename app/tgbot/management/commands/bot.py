@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
         start_handler = CommandHandler('start', start)
         help_handler = CommandHandler('help', help)
+        statistics_handler = CommandHandler('statistics', statistics)
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('cut', selection_shortening_mode)],
             states={
@@ -35,6 +36,7 @@ class Command(BaseCommand):
         app.add_handler(start_handler)
         app.add_handler(help_handler)
         app.add_handler(conv_handler)
+        app.add_handler(statistics_handler)
         app.add_error_handler(error_handler)
 
         app.run_polling()

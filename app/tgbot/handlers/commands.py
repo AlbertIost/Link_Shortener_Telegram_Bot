@@ -1,3 +1,4 @@
+import datetime
 import logging
 import sys
 import traceback
@@ -13,7 +14,7 @@ from telegram.ext import ContextTypes, ConversationHandler
 from telegram.helpers import mention_html
 
 from ugc.shortener import Shortener
-from ugc.models import Profile
+from ugc.models import Profile, Link, ClickOnLink
 from tgbot.utils import get_qrcode, get_short_url
 
 WAIT_URL, SELECT_SHORTENING_MODE = range(2)
@@ -164,3 +165,22 @@ def cut_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         async_to_sync(context.bot.send_message)(chat_id=chat_id,
                                        text='Your URL is incorrect. Please, send the correct URL address.')
         return WAIT_URL
+
+
+@sync_to_async
+def statistics(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    try:
+        user_links = Link.objects.filter(profile__external_id=chat_id)
+    except OperationalError:
+        close_old_connections()
+        user_links = Link.objects.filter(profile__external_id=chat_id)
+
+    for link in user_links:
+        clicks_counter = ClickOnLink.objects.filter(link=link).count()
+        clicks_counter_today = ClickOnLink.objects.filter(link=link,
+                                                          click_at__gte=datetime.date.today()).count()
+        async_to_sync(context.bot.send_message)(chat_id=chat_id,
+                                                text=f'By the link {link.original_link} '
+                                                     f'clicked {clicks_counter} times\n'
+                                                     f'Today: {clicks_counter_today}')
