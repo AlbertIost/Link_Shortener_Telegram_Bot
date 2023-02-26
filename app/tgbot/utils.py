@@ -18,4 +18,4 @@ def get_qrcode(link: str):
 
 
 def get_short_url(link: Link):
-    return settings.HOST + '/' + link.token
+    return f'{settings.HOST}/{link.token}'
