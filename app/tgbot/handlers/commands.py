@@ -60,7 +60,6 @@ async def devs_notification(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     text = "Commands list:\n" \
-           "/start - restart bot\n" \
            "/cut - shorten the link\n" \
            "/delete - delete the link\n" \
            "/statistics - get statistics on links\n" \
@@ -216,9 +215,20 @@ def statistics(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  'Send /cut for shortening link.'
         )
     for link in user_links:
-        clicks_counter = ClickOnLink.objects.filter(link=link).count()
-        clicks_counter_today = ClickOnLink.objects.filter(link=link,
+        try:
+            clicks_counter = ClickOnLink.objects.filter(link=link).count()
+        except OperationalError:
+            close_old_connections()
+            clicks_counter = ClickOnLink.objects.filter(link=link).count()
+
+        try:
+            clicks_counter_today = ClickOnLink.objects.filter(link=link,
                                                           click_at__gte=datetime.date.today()).count()
+        except OperationalError:
+            close_old_connections()
+            clicks_counter_today = ClickOnLink.objects.filter(link=link,
+                                                              click_at__gte=datetime.date.today()).count()
+
         async_to_sync(context.bot.send_message)(
             chat_id=chat_id,
             text=f'By the link {link.original_link} '
@@ -229,7 +239,12 @@ def statistics(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @sync_to_async
 def list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    links = Link.objects.filter(profile__external_id=chat_id)
+    try:
+        links = Link.objects.filter(profile__external_id=chat_id)
+    except OperationalError:
+        close_old_connections()
+        links = Link.objects.filter(profile__external_id=chat_id)
+
     if links.count() == 0:
         async_to_sync(context.bot.send_message)(
             chat_id=chat_id,
@@ -247,9 +262,20 @@ def list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @sync_to_async
 def choose_links_for_delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    user = Profile.objects.get(external_id=chat_id)
+    try:
+        user = Profile.objects.get(external_id=chat_id)
+    except OperationalError:
+        close_old_connections()
+        user = Profile.objects.get(external_id=chat_id)
+
     keyboard = [[InlineKeyboardButton("Cancel", callback_data='cancel')]]
-    links = Link.objects.filter(profile=user)
+
+    try:
+        links = Link.objects.filter(profile=user)
+    except OperationalError:
+        close_old_connections()
+        links = Link.objects.filter(profile=user)
+
     for link in links:
         keyboard.append([
             InlineKeyboardButton(f"{link.original_link} - {get_short_url(link)}", callback_data=link.id)
@@ -279,6 +305,10 @@ def delete_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f'Пользователь: {user_href}.\n'
         f'Удалил ссылку: {Link.objects.get(id=link_id).original_link}'
     )
+    try:
+        Link.objects.filter(id=link_id).delete()
+    except OperationalError:
+        close_old_connections()
+        Link.objects.filter(id=link_id).delete()
 
-    Link.objects.filter(id=link_id).delete()
     return ConversationHandler.END
