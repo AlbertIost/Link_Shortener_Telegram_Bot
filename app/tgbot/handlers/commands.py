@@ -62,6 +62,9 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = "Commands list:\n" \
            "/start - restart bot\n" \
            "/cut - shorten the link\n" \
+           "/delete - delete the link\n" \
+           "/statistics - get statistics on links\n" \
+           "/list - get a list of links\n" \
            "/help - get commands list"
     await context.bot.send_message(chat_id=chat_id, text=text)
 
