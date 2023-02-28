@@ -19,8 +19,9 @@ class Command(BaseCommand):
         start_handler = CommandHandler('start', start)
         help_handler = CommandHandler('help', help)
         statistics_handler = CommandHandler('statistics', statistics)
-        conv_handler = ConversationHandler(
-            entry_points=[CommandHandler('cut', selection_shortening_mode)],
+        list_handler = CommandHandler('list', list)
+        cut_link_conversation_handler = ConversationHandler(
+            entry_points=[CommandHandler('cut', check_number_of_links)],
             states={
                 SELECT_SHORTENING_MODE: [
                     CallbackQueryHandler(wait_url, pattern="^(Only link|Link & QR)$"),
@@ -28,15 +29,28 @@ class Command(BaseCommand):
                 ],
                 WAIT_URL: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, cut_link)
-                ],
+                ]
+
+            },
+            fallbacks=[CommandHandler('cancel', cancel)]
+        )
+        delete_link_conversation_handler = ConversationHandler(
+            entry_points=[CommandHandler('delete', choose_links_for_delete)],
+            states={
+                CHOOSE_LINK_FOR_DELETE: [
+                    CallbackQueryHandler(delete_link, pattern="^[0-9]+$"),
+                    CallbackQueryHandler(cancel, pattern="^cancel$"),
+                ]
             },
             fallbacks=[CommandHandler('cancel', cancel)]
         )
 
         app.add_handler(start_handler)
         app.add_handler(help_handler)
-        app.add_handler(conv_handler)
+        app.add_handler(cut_link_conversation_handler)
+        app.add_handler(delete_link_conversation_handler)
         app.add_handler(statistics_handler)
+        app.add_handler(list_handler)
         app.add_error_handler(error_handler)
 
         app.run_polling()
